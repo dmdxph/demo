@@ -4,239 +4,261 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>高数可视化 · Calculus Viz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/kat@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
   <style>
     /* ════════════════ Design Tokens ════════════════ */
     :root{
-      --bg:        #f0f0f5;
-      --bg-deep:   #e8e8f0;
-      --panel:     rgba(255,255,255,.82);
-      --panel-solid:#ffffff;
-      --border:    rgba(120,110,180,.14);
-      --text:      #1a1a2e;
-      --muted:     #6e6b85;
-      --brand:     #4f3cc9;
-      --brand-light:#7c6ef0;
-      --accent:    #e85d40;
-      --success:   #1a8a5a;
-      --surface-1: #4f3cc9;
-      --surface-2: #6366f1;
-      --surface-3: #818cf8;
-      --shadow-sm: 0 1px 3px rgba(79,60,201,.06), 0 1px 2px rgba(0,0,0,.04);
-      --shadow-md: 0 4px 20px rgba(79,60,201,.08), 0 2px 6px rgba(0,0,0,.04);
-      --shadow-lg: 0 12px 48px rgba(79,60,201,.12), 0 4px 12px rgba(0,0,0,.06);
-      --radius: 18px;
-      --radius-sm: 10px;
-      --transition: .28s cubic-bezier(.4,0,.2,1);
+      --bg:           #FCFCFA;
+      --surface:      #FFFFFF;
+      --sidebar-bg:   #F7F6F3;
+      --border:       #E8E5DF;
+      --border-light: #EEECE7;
+      --text:         #1C1C1C;
+      --text-secondary:#787672;
+      --text-muted:   #AAA8A3;
+      --accent:       #C94A2E;
+      --accent-hover: #A93D24;
+      --accent-bg:    rgba(201,74,46,0.06);
+      --accent-border:rgba(201,74,46,0.18);
+      --beige:        #EBE0CD;
+      --beige-dark:   #DCCFB8;
+      --ink:          #2C2A26;
+      --shadow-sm:    0 1px 2px rgba(28,28,28,.04);
+      --shadow-md:    0 4px 16px rgba(28,28,28,.06);
+      --radius:       6px;
+      --transition:   .2s ease;
+      /* Type scale */
+      --font-display: 'Noto Serif SC', 'Georgia', 'Songti SC', serif;
+      --font-ui:      'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
     }
     *{ box-sizing:border-box; margin:0; padding:0; }
 
     html,body{
       background:var(--bg); color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; line-height:1.55;
+      font-family:var(--font-ui);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      line-height:1.6; font-size:15px;
     }
 
-    /* ════════════════ Layout ════════════════ */
-    .layout{ display:flex; min-height:100vh; position:relative; overflow:hidden; }
+    /* ═══ Layout ═══ */
+    .layout{ display:flex; min-height:100vh; }
 
     /* ── Sidebar ── */
     .sidebar{
-      width:260px; flex-shrink:0; position:relative; z-index:10;
-      background:linear-gradient(170deg,#2a1f6e 0%,#4f3cc9 45%,#6366f1 100%);
-      display:flex; flex-direction:column; padding:28px 18px 24px;
-      color:#fff;
+      width:210px; flex-shrink:0;
+      background:var(--sidebar-bg);
+      border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+      padding:32px 0 24px;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
     }
-    .sidebar::after{
-      content:''; position:absolute; top:0; right:-30px; width:60px; height:100%;
-      background:linear-gradient(90deg,rgba(99,102,241,.25) 0%, transparent 100%); pointer-events:none;
+    .sidebar-brand{
+      padding:0 24px 24px;
+      border-bottom:1px solid var(--border-light);
+      margin-bottom:8px;
     }
-    .brand-area{ margin-bottom:28px; padding-left:4px; }
-    .brand-icon{
-      width:42px; height:42px; border-radius:13px; background:rgba(255,255,255,.15);
-      backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center;
-      font-size:20px; font-weight:700; letter-spacing:-1px; margin-bottom:12px;
-      border:1px solid rgba(255,255,255,.18);
+    .sidebar-brand h1{
+      font-family:var(--font-display); font-weight:900; font-size:18px;
+      letter-spacing:-.02em; color:var(--ink); line-height:1.3;
     }
-    .brand-title{ font-size:19px; font-weight:700; letter-spacing:.3px; line-height:1.3; }
-    .brand-sub{ font-size:12px; opacity:.65; margin-top:3px; letter-spacing:1.5px; text-transform:uppercase; }
-
-    .nav{ display:flex; flex-direction:column; gap:4px; flex:1; }
-    .nav-btn{
-      all:unset; cursor:pointer; display:flex; align-items:center; gap:12px;
-      padding:11px 14px; border-radius:var(--radius-sm); font-size:14px; font-weight:500;
-      color:rgba(255,255,255,.72); transition:all var(--transition); position:relative;
-    }
-    .nav-btn:hover{ background:rgba(255,255,255,.12); color:#fff; }
-    .nav-btn.active{
-      background:rgba(255,255,255,.18); color:#fff; font-weight:600;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 2px 8px rgba(0,0,0,.12);
-    }
-    .nav-btn .ic{
-      width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center;
-      font-size:15px; font-weight:700; background:rgba(255,255,255,.1); flex-shrink:0;
-      transition:background var(--transition);
-    }
-    .nav-btn.active .ic{ background:rgba(255,255,255,.22); }
-    .nav-num{ font-size:10px; opacity:.45; font-weight:600; letter-spacing:.5px; margin-left:auto; }
-
-    .foot{
-      margin-top:20px; padding-top:18px; border-top:1px solid rgba(255,255,255,.12);
-      font-size:11px; opacity:.48; line-height:1.65; padding-left:4px;
+    .sidebar-brand p{
+      font-size:11px; color:var(--text-muted); margin-top:4px;
+      letter-spacing:.08em; text-transform:uppercase; font-weight:500;
     }
 
-    /* ── Main Content ── */
+    .nav{ display:flex; flex-direction:column; padding:8px 12px; gap:1px; flex:1; }
+    .nav-item{
+      all:unset; cursor:pointer; display:flex; align-items:center; gap:10px;
+      padding:10px 14px; border-radius:4px; font-size:13.5px; font-weight:500;
+      color:var(--text-secondary); transition:all var(--transition);
+      position:relative;
+    }
+    .nav-item:hover{ color:var(--text); background:rgba(28,28,28,.03); }
+    .nav-item.active{
+      color:var(--accent); font-weight:600; background:var(--accent-bg);
+    }
+    .nav-item.active::before{
+      content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
+      width:3px; height:16px; border-radius:2px; background:var(--accent);
+    }
+    .nav-num{
+      font-size:10px; font-weight:700; color:var(--text-muted);
+      min-width:22px; text-align:center; font-variant-numeric:tabular-nums;
+      letter-spacing:.02em;
+    }
+    .nav-item.active .nav-num{ color:var(--accent); opacity:.6; }
+
+    .sidebar-foot{
+      padding:20px 24px 0; border-top:1px solid var(--border-light);
+      margin-top:auto; font-size:11px; color:var(--text-muted); line-height:1.7;
+    }
+
+    /* ── Main ── */
     .main{
-      flex:1; padding:32px 36px; width:100%; min-width:0; max-width:1280px;
-      overflow-y:auto; position:relative;
+      flex:1; min-width:0; overflow-y:auto;
+      padding:0;
+      background:var(--bg);
     }
 
-    /* ── Glass Card (Module Container) ── */
-    .card{
-      background:var(--panel); backdrop-filter:blur(20px) saturate(1.4);
-      -webkit-backdrop-filter:blur(20px) saturate(1.4);
-      border:1px solid var(--border); border-radius:var(--radius);
-      box-shadow:var(--shadow-md); padding:32px; margin-bottom:24px;
-      animation:fadeUp .35s ease both;
+    /* ── Module ── */
+    .module{
+      max-width:1100px; margin:0 auto; padding:56px 48px 64px;
+      animation:moduleIn .4s ease both;
     }
-    @keyframes fadeUp{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
+    @keyframes moduleIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
 
-    /* ── Typography ── */
-    h2{
-      font-size:22px; font-weight:700; margin:0 0 6px; letter-spacing:-.3px;
-      background:linear-gradient(135deg,var(--brand) 0%,var(--surface-2) 100%);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    .module-header{ margin-bottom:32px; }
+    .module-label{
+      font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+      color:var(--accent); margin-bottom:10px; font-variant-numeric:tabular-nums;
     }
-    .hint{
-      font-size:14px; color:var(--muted); margin:0 0 22px; line-height:1.6; max-width:600px;
+    .module-title{
+      font-family:var(--font-display); font-weight:900; font-size:clamp(28px,4vw,40px);
+      letter-spacing:-.03em; color:var(--ink); line-height:1.25; max-width:720px;
+    }
+    .module-title .hl{ color:var(--accent); }
+    .module-desc{
+      font-size:15px; color:var(--text-secondary); line-height:1.7;
+      margin-top:14px; max-width:620px;
     }
 
-    /* ── Controls ── */
-    .grid2{ display:grid; gap:24px; grid-template-columns:340px 1fr; margin-top:4px; }
+    /* ── Content Grid ── */
+    .grid2{ display:grid; gap:40px; grid-template-columns:320px 1fr; margin-top:36px; }
     @media(max-width:860px){ .grid2{ grid-template-columns:1fr; } .sidebar{ display:none; } }
 
-    label{ font-size:12.5px; font-weight:600; color:var(--muted); display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:.4px; }
-
-    .input{
-      border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:11px 14px; font-size:14px;
-      width:100%; outline:none; background:var(--panel-solid); color:var(--text);
-      transition:all var(--transition); font-family:inherit;
+    /* ── Controls Panel ── */
+    .controls{ }
+    .control-group{ margin-bottom:20px; }
+    label{
+      font-size:11.5px; font-weight:600; color:var(--text-secondary);
+      display:block; margin-bottom:6px; letter-spacing:.03em; text-transform:uppercase;
     }
-    .input:hover{ border-color:rgba(79,60,201,.28); }
-    .input:focus{ border-color:var(--brand); box-shadow:0 0 0 3px rgba(79,60,201,.12); }
+    .input{
+      border:1.5px solid var(--border); border-radius:var(--radius); padding:9px 12px; font-size:14px;
+      width:100%; outline:none; background:var(--surface); color:var(--text);
+      transition:border-color var(--transition); font-family:var(--font-ui);
+      font-variant-numeric:tabular-nums;
+    }
+    .input:hover{ border-color:#D5D2CB; }
+    .input:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-bg); }
 
     .btn{
-      border:1.5px solid var(--border); background:var(--panel-solid); border-radius:var(--radius-sm);
-      padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; transition:all var(--transition);
-      color:var(--text); display:inline-flex; align-items:center; gap:6px;
+      border:1.5px solid var(--border); background:var(--surface); border-radius:var(--radius);
+      padding:8px 14px; font-size:13px; font-weight:500; cursor:pointer;
+      transition:all var(--transition); color:var(--text);
+      font-family:var(--font-ui); display:inline-flex; align-items:center; gap:5px;
     }
-    .btn:hover{ border-color:var(--brand-light); color:var(--brand); box-shadow:var(--shadow-sm); transform:translateY(-1px); }
-    .btn:active{ transform:translateY(0); }
+    .btn:hover{ border-color:var(--accent); color:var(--accent); }
+    .btn:active{ transform:scale(.98); }
 
-    .expr-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-    .expr-row .dot{ width:14px; height:14px; border-radius:50%; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,.15); }
-    .expr-row .lbl{ font-size:13px; font-weight:600; color:var(--muted); flex-shrink:0; min-width:52px; }
+    .expr-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .expr-row .dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .expr-row .lbl{ font-size:12.5px; font-weight:600; color:var(--text-secondary); flex-shrink:0; min-width:48px; font-variant-numeric:tabular-nums;}
 
-    .err{ color:var(--accent); font-size:12.5px; margin-top:8px; min-height:16px; font-weight:500; }
-    .out{ margin-top:16px; font-size:15px; padding:14px 18px; background:linear-gradient(135deg,rgba(79,60,201,.05) 0%,rgba(99,102,241,.06) 100%);
-      border-radius:var(--radius-sm); border:1px solid rgba(79,60,201,.1); line-height:1.7; }
+    .err{ color:var(--accent); font-size:12px; margin-top:8px; min-height:14px; font-weight:500; }
+    .out{
+      margin-top:16px; font-size:14px; padding:12px 16px;
+      background:var(--accent-bg); border-radius:var(--radius);
+      border:1px solid var(--accent-border); line-height:1.7;
+      color:var(--text);
+    }
 
-    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
-    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+    .chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
 
     input[type=range]{
-      width:100%; height:6px; -webkit-appearance:none; appearance:none; background:var(--bg-deep);
-      border-radius:3px; outline:none; margin-top:4px;
+      width:100%; height:4px; -webkit-appearance:none; appearance:none;
+      background:var(--border); border-radius:2px; outline:none; margin-top:6px;
     }
     input[type=range]::-webkit-slider-thumb{
-      -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
-      background:linear-gradient(135deg,var(--brand) 0%,var(--surface-2) 100%);
-      cursor:pointer; box-shadow:0 2px 8px rgba(79,60,201,.3); border:2px solid #fff; transition:transform .15s ease;
+      -webkit-appearance:none; appearance:none; width:16px; height:16px; border-radius:50%;
+      background:var(--accent); cursor:pointer; border:2.5px solid var(--surface);
+      box-shadow:0 1px 4px rgba(201,74,46,.25); transition:transform .15s ease;
     }
     input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.15); }
-    input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%;
-      background:linear-gradient(135deg,var(--brand) 0%,var(--surface-2) 100%); cursor:pointer;
-      border:2px solid #fff; }
+    input[type=range]::-moz-range-thumb{ width:16px; height:16px; border-radius:50%;
+      background:var(--accent); cursor:pointer; border:2.5px solid var(--surface); }
 
-    /* Radio / Checkbox styling */
-    input[type=radio],input[type=checkbox]{ accent-color:var(--brand); width:16px; height:16px; }
+    input[type=radio],input[type=checkbox]{ accent-color:var(--accent); width:15px; height:15px; }
+    .radio-group{ display:flex; gap:16px; margin-top:6px; flex-wrap:wrap; }
+    .radio-group label{ margin:0; font-weight:500; color:var(--text); text-transform:none; letter-spacing:0; font-size:13px; cursor:pointer;display:flex;align-items:center;gap:5px; }
 
     /* ── Plot Area ── */
     .plot-wrap{
-      background:var(--panel-solid); border-radius:var(--radius); border:1px solid var(--border);
-      box-shadow:var(--shadow-sm); overflow:hidden; position:relative;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); overflow:hidden;
+      box-shadow:var(--shadow-sm);
     }
-    .plot-wrap::before{
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:linear-gradient(90deg,var(--surface-1) 0%,var(--surface-2) 50%,var(--surface-3) 100%);
-      z-index:1;
-    }
-    .plot{ width:100%; height:480px; }
-    .plot3d{ width:100%; height:520px; }
+    .plot{ width:100%; height:460px; }
+    .plot3d{ width:100%; height:500px; }
 
-    /* ── Module Header Badge ── */
-    .mod-header{ display:flex; align-items:center; gap:12px; margin-bottom:6px; }
-    .mod-badge{
-      font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
-      padding:4px 10px; border-radius:6px; background:linear-gradient(135deg,rgba(79,60,201,.1) 0%,rgba(99,102,241,.08) 100%);
-      color:var(--brand); border:1px solid rgba(79,60,201,.15);
-    }
-
-    /* ── Scrollbar ════════════════ */
-    ::-webkit-scrollbar{ width:6px; }
+    /* ── Scrollbar ═════ */
+    ::-webkit-scrollbar{ width:5px; }
     ::-webkit-scrollbar-track{ background:transparent; }
-    ::-webkit-scrollbar-thumb{ background:rgba(79,60,201,.2); border-radius:3px; }
-    ::-webkit-scrollbar-thumb:hover{ background:rgba(79,60,201,.35); }
+    ::-webkit-scrollbar-thumb{ background:var(--border); border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover{ background:var(--text-muted); }
 
-    /* ── Responsive ════════════════ */
+    /* ── Responsive ═════ */
     @media(max-width:600px){
-      .main{ padding:16px; } .card{ padding:20px; border-radius:14px; }
+      .module{ padding:32px 20px 48px; }
       .row2,.row3{ grid-template-columns:1fr; }
+      .grid2{ gap:24px; }
     }
+
+    /* ── Value label inline ── */
+    .val-label{ color:var(--accent); font-weight:700; font-size:14px; font-variant-numeric:tabular-nums;}
   </style>
 </head>
 <body>
   <div class="layout">
     <!-- ═══ Sidebar ═══ -->
     <aside class="sidebar">
-      <div class="brand-area">
-        <div class="brand-icon">∫</div>
-        <div class="brand-title">高数可视化</div>
-        <div class="brand-sub">Calculus Viz</div>
+      <div class="sidebar-brand">
+        <h1>高数可视化</h1>
+        <p>Calculus Viz</p>
       </div>
       <nav class="nav">
-        <button class="nav-btn active" id="nav-function" onclick="showModule('function')">
-          <span class="ic">ƒ</span>函数作图<span class="nav-num">01</span></button>
-        <button class="nav-btn" id="nav-derivative" onclick="showModule('derivative')">
-          <span class="ic">′</span>导数 / 切线<span class="nav-num">02</span></button>
-        <button class="nav-btn" id="nav-integral" onclick="showModule('integral')">
-          <span class="ic">∫</span>积分与黎曼和<span class="nav-num">03</span></button>
-        <button class="nav-btn" id="nav-limit" onclick="showModule('limit')">
-          <span class="ic">lim</span>极限与逼近<span class="nav-num">04</span></button>
-        <button class="nav-btn" id="nav-fourier" onclick="showModule('fourier')">
-          <span class="ic">Σ</span>傅里叶级数<span class="nav-num">05</span></button>
-        <button class="nav-btn" id="nav-surface" onclick="showModule('surface')">
-          <span class="ic">◳</span>3D 曲面<span class="nav-num">06</span></button>
+        <button class="nav-item active" id="nav-function" onclick="showModule('function')">
+          <span class="nav-num">01</span>函数与极限</button>
+        <button class="nav-item" id="nav-integral" onclick="showModule('integral')">
+          <span class="nav-num">02</span>积分与积分</button>
+        <button class="nav-item" id="nav-derivative" onclick="showModule('derivative')">
+          <span class="nav-num">03</span>导数与局部变化</button>
+        <button class="nav-item" id="nav-limit" onclick="showModule('limit')">
+          <span class="nav-num">04</span>微分与近似</button>
+        <button class="nav-item" id="nav-fourier" onclick="showModule('fourier')">
+          <span class="nav-num">05</span>微积分方程</button>
+        <button class="nav-item" id="nav-surface" onclick="showModule('surface')">
+          <span class="nav-num">06</span>三维曲面</button>
       </nav>
-      <div class="foot">交互式数学可视化工具<br/>零构建 · 部署至 Vercel / CloudStudio<br/>© 2026 Calculus Viz</div>
+      <div class="sidebar-foot">
+        从直觉出发，再降到公式<br/>
+        <span style="opacity:.6">交互式数学可视化工具</span>
+      </div>
     </aside>
 
     <!-- ═══ Main Content ═══ -->
     <main class="main">
 
       <!-- 函数作图 -->
-      <section class="module card" id="mod-function">
-        <div class="mod-header"><span class="mod-badge">Module 01</span><h2>函数作图</h2></div>
-        <p class="hint">输入 f(x)，实时绘制曲线。支持 sin、cos、exp、sqrt、^ 等运算；可叠加多条函数对比观察。</p>
+      <section class="module" id="mod-function">
+        <div class="module-header">
+          <div class="module-label">01 &nbsp; Function Plotter</div>
+          <h2 class="module-title">输入任意 <span class="hl">f(x)</span>，<br/>即刻看见它的形状。</h2>
+          <p class="module-desc">支持 sin、cos、exp、sqrt、^ 等运算；可叠加多条函数对比观察。拖拽缩放、悬停查看精确坐标。</p>
+        </div>
         <div class="grid2">
-          <div>
+          <div class="controls">
             <div id="func-exprs"></div>
             <button class="btn" style="margin-top:4px" onclick="addFuncExpr()">+ 添加函数</button>
             <div class="chips" id="func-examples"></div>
-            <div class="row2" style="margin-top:18px">
+            <div class="row2 control-group" style="margin-top:20px;">
               <div><label>x 最小值</label><input class="input" type="number" id="func-xmin" value="-10" oninput="renderFunction()"></div>
               <div><label>x 最大值</label><input class="input" type="number" id="func-xmax" value="10" oninput="renderFunction()"></div>
             </div>
@@ -246,50 +268,30 @@
         </div>
       </section>
 
-      <!-- 导数 / 切线 -->
-      <section class="module card" id="mod-derivative" style="display:none">
-        <div class="mod-header"><span class="mod-badge">Module 02</span><h2>导数与切线</h2></div>
-        <p class="hint">拖动 x₀，观察切线如何随切点移动。切线的斜率即为该点的导数值 f′(x₀)。</p>
-        <div class="grid2">
-          <div>
-            <label>f(x) =</label>
-            <input class="input" id="deriv-expr" value="x^2" oninput="renderDerivative()">
-            <div style="margin-top:16px"><label>x₀ = <span id="deriv-x0-label" style="color:var(--brand);font-weight:700;font-size:15px;">1.50</span></label>
-              <input type="range" min="-5" max="5" step="0.01" id="deriv-x0" value="1.5"
-                oninput="document.getElementById('deriv-x0-label').textContent=(+this.value).toFixed(2);renderDerivative()">
-            </div>
-            <div class="row2" style="margin-top:12px">
-              <div><label>x 最小值</label><input class="input" type="number" id="deriv-xmin" value="-5" oninput="renderDerivative()"></div>
-              <div><label>x 最大值</label><input class="input" type="number" id="deriv-xmax" value="5" oninput="renderDerivative()"></div>
-            </div>
-            <label style="display:flex;align-items:center;gap:8px;margin-top:14px;cursor:pointer;font-weight:500;color:var(--text)">
-              <input type="checkbox" id="deriv-show" checked onchange="renderDerivative()"> 显示导函数曲线 f′(x)
-            </label>
-            <div class="out" id="deriv-out"></div>
-            <div class="err" id="deriv-err"></div>
-          </div>
-          <div class="plot-wrap"><div id="plot-derivative" class="plot"></div></div>
-        </div>
-      </section>
-
       <!-- 积分 / 黎曼和 -->
-      <section class="module card" id="mod-integral" style="display:none">
-        <div class="mod-header"><span class="mod-badge">Module 03</span><h2>积分与黎曼和</h2></div>
-        <p class="hint">把曲线下方划分成小矩形，再让误差趋于零。调节分割数 n，观察矩形面积如何逼近真实积分。</p>
+      <section class="module" id="mod-integral" style="display:none">
+        <div class="module-header">
+          <div class="module-label">02 &nbsp; Riemann Sum</div>
+          <h2 class="module-title">把曲线下方拆成<span class="hl">小矩形</span>，<br/>再让误差<span class="hl">趋于零</span>。</h2>
+          <p class="module-desc">考察数学一对应定积分定义。增加分割数 n，观察有限矩形和怎样逼近定积分。</p>
+        </div>
         <div class="grid2">
-          <div>
-            <label>f(x) =</label>
-            <input class="input" id="int-expr" value="x^2" oninput="renderIntegral()">
-            <div class="row3" style="margin-top:14px">
+          <div class="controls">
+            <div class="control-group">
+              <label>f(x) =</label>
+              <input class="input" id="int-expr" value="x^2" oninput="renderIntegral()">
+            </div>
+            <div class="row3 control-group">
               <div><label>下界 a</label><input class="input" type="number" id="int-a" value="0" oninput="renderIntegral()"></div>
               <div><label>上界 b</label><input class="input" type="number" id="int-b" value="3" oninput="renderIntegral()"></div>
-              <div><label>分割数 n</label><input class="input" type="number" id="int-n" value="8" min="1" max="200" oninput="renderIntegral()"></div>
+              <div><label>分割数 n</label><input class="input" type="number" id="int-n" value="12" min="1" max="200" oninput="renderIntegral()"></div>
             </div>
-            <div style="margin-top:14px"><label>取样方式</label>
-              <div style="display:flex;gap:14px;margin-top:6px">
-                <label style="margin:0;font-weight:500;color:var(--text)"><input type="radio" name="int-method" value="left" onchange="renderIntegral()"> 左端点</label>
-                <label style="margin:0;font-weight:500;color:var(--text)"><input type="radio" name="int-method" value="right" onchange="renderIntegral()"> 右端点</label>
-                <label style="margin:0;font-weight:500;color:var(--text)"><input type="radio" name="int-method" value="mid" checked onchange="renderIntegral()"> 中点</label>
+            <div class="control-group">
+              <label>取样方式</label>
+              <div class="radio-group">
+                <label><input type="radio" name="int-method" value="left" onchange="renderIntegral()"> 左端点</label>
+                <label><input type="radio" name="int-method" value="right" onchange="renderIntegral()"> 右端点</label>
+                <label><input type="radio" name="int-method" value="mid" checked onchange="renderIntegral()"> 中点</label>
               </div>
             </div>
             <div class="out" id="int-out"></div>
@@ -299,24 +301,62 @@
         </div>
       </section>
 
-      <!-- 极限动画 -->
-      <section class="module card" id="mod-limit" style="display:none">
-        <div class="mod-header"><span class="mod-badge">Module 04</span><h2>极限与逼近</h2></div>
-        <p class="hint">从两侧出发，再降到公式。观察 x 趋近 a 时 f(x) 的走向——点击播放看探针自动逼近。</p>
+      <!-- 导数 / 切线 -->
+      <section class="module" id="mod-derivative" style="display:none">
+        <div class="module-header">
+          <div class="module-label">03 &nbsp; Derivative &amp; Tangent</div>
+          <h2 class="module-title">在每一点，曲线都有<br/>一个<span class="hl">切线方向</span>。</h2>
+          <p class="module-desc">拖动 x₀，观察切线如何随切点移动。切线的斜率即为该点的导数值 f′(x₀)。</p>
+        </div>
         <div class="grid2">
-          <div>
-            <label>f(x) =</label>
-            <input class="input" id="lim-expr" value="sin(x)/x" oninput="renderLimit()">
-            <div class="row2" style="margin-top:14px">
+          <div class="controls">
+            <div class="control-group">
+              <label>f(x) =</label>
+              <input class="input" id="deriv-expr" value="x^2" oninput="renderDerivative()">
+            </div>
+            <div class="control-group">
+              <label>x₀ = <span id="deriv-x0-label" class="val-label">1.50</span></label>
+              <input type="range" min="-5" max="5" step="0.01" id="deriv-x0" value="1.5"
+                oninput="document.getElementById('deriv-x0-label').textContent=(+this.value).toFixed(2);renderDerivative()">
+            </div>
+            <div class="row2 control-group">
+              <div><label>x 最小值</label><input class="input" type="number" id="deriv-xmin" value="-5" oninput="renderDerivative()"></div>
+              <div><label>x 最大值</label><input class="input" type="number" id="deriv-xmax" value="5" oninput="renderDerivative()"></div>
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;margin-top:14px;cursor:pointer;font-weight:500;color:var(--text);text-transform:none;letter-spacing:0;font-size:13px;">
+              <input type="checkbox" id="deriv-show" checked onchange="renderDerivative()"> 显示导函数曲线 f′(x)
+            </label>
+            <div class="out" id="deriv-out"></div>
+            <div class="err" id="deriv-err"></div>
+          </div>
+          <div class="plot-wrap"><div id="plot-derivative" class="plot"></div></div>
+        </div>
+      </section>
+
+      <!-- 极限动画 -->
+      <section class="module" id="mod-limit" style="display:none">
+        <div class="module-header">
+          <div class="module-label">04 &nbsp; Limit &amp; Approximation</div>
+          <h2 class="module-title">让 x 无限<span class="hl">靠近</span>某个值，<br/>看 f(x) 跑向哪里。</h2>
+          <p class="module-desc">从两侧出发，再降到公式。观察 x 趋近 a 时 f(x) 的走向——点击播放看探针自动逼近。</p>
+        </div>
+        <div class="grid2">
+          <div class="controls">
+            <div class="control-group">
+              <label>f(x) =</label>
+              <input class="input" id="lim-expr" value="sin(x)/x" oninput="renderLimit()">
+            </div>
+            <div class="row2 control-group">
               <div><label>趋近点 a</label><input class="input" type="number" id="lim-a" value="0" oninput="renderLimit()"></div>
               <div><label>窗口半宽</label><input class="input" type="number" id="lim-w" value="3" oninput="renderLimit()"></div>
             </div>
-            <div style="margin-top:14px"><label>探针距离 d = <span id="lim-d-label" style="color:var(--brand);font-weight:700;font-size:15px;">2.000</span></label>
+            <div class="control-group">
+              <label>探针距离 d = <span id="lim-d-label" class="val-label">2.000</span></label>
               <input type="range" min="0.001" max="3" step="0.001" id="lim-d" value="2"
                 oninput="document.getElementById('lim-d-label').textContent=(+this.value).toFixed(3);renderLimit()">
             </div>
             <button class="btn" style="margin-top:10px" onclick="playLimit()">▶ 播放逼近动画</button>
-            <div class="out" id="lim-out" style="font-size:14px;">
+            <div class="out" id="lim-out" style="font-size:13px;">
               f(a − d) = <b id="lim-fl">—</b>&nbsp;&nbsp;&nbsp;f(a + d) = <b id="lim-fr">—</b>
             </div>
             <div class="err" id="lim-err"></div>
@@ -326,34 +366,44 @@
       </section>
 
       <!-- 傅里叶级数 -->
-      <section class="module card" id="mod-fourier" style="display:none">
-        <div class="mod-header"><span class="mod-badge">Module 05</span><h2>傅里叶级数</h2></div>
-        <p class="hint">用有限个正弦波叠加逼近方波。增大项数 N，观察吉布斯现象外的拟合效果。</p>
+      <section class="module" id="mod-fourier" style="display:none">
+        <div class="module-header">
+          <div class="module-label">05 &nbsp; Fourier Series</div>
+          <h2 class="module-title">用正弦波叠加，<br/>逼近出<span class="hl">方波</span>的形状。</h2>
+          <p class="module-desc">用有限个正弦波叠加逼近方波。增大项数 N，观察吉布斯现象外的拟合效果。</p>
+        </div>
         <div class="grid2">
-          <div>
-            <div style="margin-bottom:14px"><label>项数 N = <span id="four-n-label" style="color:var(--brand);font-weight:700;font-size:15px;">5</span></label>
+          <div class="controls">
+            <div class="control-group">
+              <label>项数 N = <span id="four-n-label" class="val-label">5</span></label>
               <input type="range" min="1" max="40" step="1" id="four-n" value="5"
                 oninput="document.getElementById('four-n-label').textContent=this.value;renderFourier()">
             </div>
-            <div style="margin-bottom:14px"><label>显示周期数 = <span id="four-p-label" style="color:var(--brand);font-weight:700;font-size:15px;">3</span></label>
+            <div class="control-group">
+              <label>显示周期数 = <span id="four-p-label" class="val-label">3</span></label>
               <input type="range" min="1" max="6" step="1" id="four-p" value="3"
                 oninput="document.getElementById('four-p-label').textContent=this.value;renderFourier()">
             </div>
-            <div class="out" id="four-out" style="font-size:13px;color:var(--muted)"></div>
+            <div class="out" id="four-out" style="font-size:13px;color:var(--text-secondary)"></div>
           </div>
           <div class="plot-wrap"><div id="plot-fourier" class="plot"></div></div>
         </div>
       </section>
 
       <!-- 3D 曲面 -->
-      <section class="module card" id="mod-surface" style="display:none">
-        <div class="mod-header"><span class="mod-badge">Module 06</span><h2>3D 曲面</h2></div>
-        <p class="hint">输入 z = f(x, y)，拖拽旋转查看立体曲面。支持 sin、cos、sqrt、exp、^ 等。</p>
+      <section class="module" id="mod-surface" style="display:none">
+        <div class="module-header">
+          <div class="module-label">06 &nbsp; 3D Surface</div>
+          <h2 class="module-title">从曲线到曲面，<br/>看见<span class="hl">二元函数</span>的地形。</h2>
+          <p class="module-desc">输入 z = f(x, y)，拖拽旋转查看立体曲面。支持 sin、cos、sqrt、exp、^ 等。</p>
+        </div>
         <div class="grid2">
-          <div>
-            <label>f(x, y) =</label>
-            <input class="input" id="surf-expr" value="sin(sqrt(x^2+y^2))" oninput="renderSurface()">
-            <div class="row2" style="margin-top:14px">
+          <div class="controls">
+            <div class="control-group">
+              <label>f(x, y) =</label>
+              <input class="input" id="surf-expr" value="sin(sqrt(x^2+y^2))" oninput="renderSurface()">
+            </div>
+            <div class="row2 control-group">
               <div><label>范围 ±R</label><input class="input" type="number" id="surf-r" value="5" oninput="renderSurface()"></div>
               <div><label>精度 (网格)</label><input class="input" type="number" id="surf-res" value="60" min="10" max="120" oninput="renderSurface()"></div>
             </div>
@@ -413,32 +463,35 @@ function riemannSum(fn,a,b,n,method){
 }
 
 // ---------- 绘图工具 ----------
-const PALETTE=["#4f3cc9","#1a8a5a","#e85d40","#185fa5","#993556","#ba7517"];
+const PALETTE=["#C94A2E","#2A7356","#1855A5","#993556","#BA7517","#5B6B8C"];
 const CONFIG={responsive:true,displaylogo:false,modeBarButtonsToRemove:["lasso2d","select2d","autoScale2d"],scrollZoom:true};
+
 function plotLayout(xrange,yrange,shapes){
   return {
     paper_bgcolor:"rgba(255,255,255,0)",plot_bgcolor:"rgba(255,255,255,0)",
-    font:{color:"#1a1a2e",family:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",size:13},
-    margin:{t:28,r:20,b:48,l:54},hovermode:"closest",showlegend:true,
-    legend:{orientation:"h",y:-0.18,font:{size:12}},
-    xaxis:{gridcolor:"rgba(120,110,180,.08)",zerolinecolor:"rgba(120,110,180,.25)",linecolor:"rgba(120,110,180,.2)",range:xrange||undefined},
-    yaxis:{gridcolor:"rgba(120,110,180,.08)",zerolinecolor:"rgba(120,110,180,.25)",linecolor:"rgba(120,110,180,.2)",range:yrange||undefined},
+    font:{color:"#787672",family:"'Inter',-apple-system,sans-serif",size:12},
+    margin:{t:24,r:16,b:44,l:48},hovermode:"closest",showlegend:true,
+    legend:{orientation:"h",y:-0.16,font:{size:11,color:'#787672'}},
+    xaxis:{gridcolor:"#F0EDE6",zerolinecolor:"#D5D0C8",linecolor:"#E0DBD4",range:xrange||undefined,tickfont:{size:11}},
+    yaxis:{gridcolor:"#F0EDE6",zerolinecolor:"#D5D0C8",linecolor:"#E0DBD4",range:yrange||undefined,tickfont:{size:11}},
     shapes:shapes||[]
   };
 }
+
 function katexSafe(tex,el){ try{ katex.render(tex,el,{throwOnError:false,displayMode:false}); }catch(e){ el.textContent=tex; } }
 
 // ---------- 导航 ----------
 function showModule(id){
   document.querySelectorAll('.module').forEach(s=>s.style.display='none');
   document.getElementById('mod-'+id).style.display='block';
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+id).classList.add('active');
 }
 
 // ---------- 函数作图 ----------
 let funcExprs=["sin(x)"];
 const FUNC_EXAMPLES=["x^2","sin(x)","exp(-x^2)","1/x","x^3 - 3*x","sqrt(abs(x))"];
+
 function renderFuncRows(){
   const box=document.getElementById('func-exprs'); box.innerHTML='';
   funcExprs.forEach((ex,i)=>{
@@ -454,6 +507,7 @@ function renderFuncRows(){
   });
 }
 function addFuncExpr(){ funcExprs.push(''); renderFuncRows(); renderFunction(); }
+
 function renderFunction(){
   const xmin=parseFloat(document.getElementById('func-xmin').value);
   const xmax=parseFloat(document.getElementById('func-xmax').value);
@@ -462,7 +516,7 @@ function renderFunction(){
   funcExprs.forEach((ex,i)=>{
     if(!ex.trim()) return;
     try{ const fn=compileExpr(ex); const {x,y}=sample(fn,xmin,xmax,600);
-      traces.push({x,y,type:'scatter',mode:'lines',name:'f'+(i+1)+'(x)',line:{color:PALETTE[i%PALETTE.length],width:2.5},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'});
+      traces.push({x,y,type:'scatter',mode:'lines',name:'f'+(i+1)+'(x)',line:{color:PALETTE[i%PALETTE.length],width:2},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'});
     }catch(err){ errEl.textContent=err.message; }
   });
   Plotly.react('plot-function',traces,plotLayout([xmin,xmax]),CONFIG);
@@ -481,10 +535,10 @@ function renderDerivative(){
     const {x,y}=sample(fn,xmin,xmax,600);
     const f0=fn(x0), d0=numDeriv(fn,x0);
     const L=(xmax-xmin)*0.25; const tx=[x0-L,x0+L]; const ty=tx.map(t=>f0+d0*(t-x0));
-    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2.5},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
-    if(showDeriv) traces.push({x,y:y.map(t=>numDeriv(fn,t)),type:'scatter',mode:'lines',name:"f'(x)",line:{color:PALETTE[1],width:2,dash:'dot'}});
-    traces.push({x:tx,y:ty,type:'scatter',mode:'lines',name:'切线',line:{color:PALETTE[3],width:2.5}});
-    traces.push({x:[x0],y:[f0],type:'scatter',mode:'markers',name:'切点',marker:{size:11,color:PALETTE[3],line:{color:'#fff',width:2}},hovertemplate:'切点 (%{x:.3f}, %{y:.3f})<extra></extra>'});
+    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
+    if(showDeriv) traces.push({x,y:y.map(t=>numDeriv(fn,t)),type:'scatter',mode:'lines',name:"f'(x)",line:{color:PALETTE[1],width:1.5,dash:'dot'}});
+    traces.push({x:tx,y:ty,type:'scatter',mode:'lines',name:'切线',line:{color:PALETTE[3],width:1.8}});
+    traces.push({x:[x0],y:[f0],type:'scatter',mode:'markers',name:'切点',marker:{size:9,color:PALETTE[3],line:{color:'#fff',width:1.5}},hovertemplate:'切点 (%{x:.3f}, %{y:.3f})<extra></extra>'});
     Plotly.react('plot-derivative',traces,plotLayout([xmin,xmax]),CONFIG);
     katexSafe(`f'(${x0.toFixed(2)}) = ${d0.toFixed(4)}`, document.getElementById('deriv-out'));
   }catch(err){ errEl.textContent=err.message; }
@@ -502,8 +556,8 @@ function renderIntegral(){
     const fn=compileExpr(expr);
     const {x,y}=sample(fn,a,b,400);
     const {sum,rects}=riemannSum(fn,a,b,n,method);
-    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2.5},fill:'tozeroy',fillcolor:'rgba(79,60,201,.07)',hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
-    const shapes=rects.map(r=>({type:'rect',xref:'x',yref:'y',x0:r.x0,x1:r.x1,y0:0,y1:r.y,fillcolor:'rgba(26,138,90,.18)',line:{width:1,color:'rgba(26,138,90,.45)'}}));
+    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2},fill:'tozeroy',fillcolor:'rgba(235,224,205,.55)',hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
+    const shapes=rects.map(r=>({type:'rect',xref:'x',yref:'y',x0:r.x0,x1:r.x1,y0:0,y1:r.y,fillcolor:'rgba(220,207,184,.65)',line:{width:.8,color:'rgba(180,165,140,.5)'}}));
     Plotly.react('plot-integral',traces,plotLayout([a,b],undefined,shapes),CONFIG);
     katexSafe(`\\int_{${a}}^{${b}} f(x)\\,dx \\approx ${sum.toFixed(4)}`, document.getElementById('int-out'));
   }catch(err){ errEl.textContent=err.message; }
@@ -511,6 +565,7 @@ function renderIntegral(){
 
 // ---------- 极限动画 ----------
 let limitTimer=null;
+
 function renderLimit(){
   const expr=document.getElementById('lim-expr').value;
   const a=parseFloat(document.getElementById('lim-a').value);
@@ -521,15 +576,16 @@ function renderLimit(){
     const fn=compileExpr(expr);
     const {x,y}=sample(fn,a-w,a+w,600);
     const fl=fn(a-d), fr=fn(a+d);
-    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2.5},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
-    if(isFinite(fl)) traces.push({x:[a-d],y:[fl],type:'scatter',mode:'markers',name:'x→a⁻',marker:{size:11,color:PALETTE[1],line:{color:'#fff',width:2}}});
-    if(isFinite(fr)) traces.push({x:[a+d],y:[fr],type:'scatter',mode:'markers',name:'x→a⁺',marker:{size:11,color:PALETTE[3],line:{color:'#fff',width:2}}});
-    const shapes=[{type:'line',xref:'x',yref:'paper',x0:a,x1:a,y0:0,y1:1,line:{color:'rgba(120,110,180,.3)',width:1,dash:'dash'}}];
+    const traces=[{x,y,type:'scatter',mode:'lines',name:'f(x)',line:{color:PALETTE[0],width:2},hovertemplate:'x=%{x:.3f}<br>f=%{y:.3f}<extra></extra>'}];
+    if(isFinite(fl)) traces.push({x:[a-d],y:[fl],type:'scatter',mode:'markers',name:'x→a⁻',marker:{size:9,color:PALETTE[1],line:{color:'#fff',width:1.5}}});
+    if(isFinite(fr)) traces.push({x:[a+d],y:[fr],type:'scatter',mode:'markers',name:'x→a⁺',marker:{size:9,color:PALETTE[3],line:{color:'#fff',width:1.5}}});
+    const shapes=[{type:'line',xref:'x',yref:'paper',x0:a,x1:a,y0:0,y1:1,line:{color:'rgba(200,195,185,.5)',width:1,dash:'dash'}}];
     Plotly.react('plot-limit',traces,plotLayout([a-w,a+w],undefined,shapes),CONFIG);
     document.getElementById('lim-fl').textContent=isFinite(fl)?fl.toFixed(4):'—';
     document.getElementById('lim-fr').textContent=isFinite(fr)?fr.toFixed(4):'—';
   }catch(err){ errEl.textContent=err.message; }
 }
+
 function playLimit(){
   const w=parseFloat(document.getElementById('lim-w').value);
   document.getElementById('lim-d').value=w;
@@ -546,6 +602,7 @@ function playLimit(){
 
 // ---------- 傅里叶级数 ----------
 function squareWave(x){ const p=(((x%(2*Math.PI))+2*Math.PI)%(2*Math.PI)); return p<Math.PI?1:-1; }
+
 function renderFourier(){
   const N=parseInt(document.getElementById('four-n').value);
   const periods=parseInt(document.getElementById('four-p').value);
@@ -553,8 +610,8 @@ function renderFourier(){
   for(let i=0;i<n;i++){ const xi=xmin+i*step; x.push(xi); let s=0;
     for(let k=1;k<=N;k++){ const m=2*k-1; s+=(4/(Math.PI*m))*Math.sin(m*xi); } fs.push(s); sq.push(squareWave(xi)); }
   const traces=[
-    {x,y:sq,type:'scatter',mode:'lines',name:'方波 (目标)',line:{color:PALETTE[1],width:1.5,dash:'dot'}},
-    {x,y:fs,type:'scatter',mode:'lines',name:'傅里叶近似 N='+N,line:{color:PALETTE[0],width:2.5},hovertemplate:'x=%{x:.3f}<br>S=%{y:.3f}<extra></extra>'}
+    {x,y:sq,type:'scatter',mode:'lines',name:'方波 (目标)',line:{color:PALETTE[1],width:1.2,dash:'dot'}},
+    {x,y:fs,type:'scatter',mode:'lines',name:'傅里叶近似 N='+N,line:{color:PALETTE[0],width:2},hovertemplate:'x=%{x:.3f}<br>S=%{y:.3f}<extra></extra>'}
   ];
   Plotly.react('plot-fourier',traces,plotLayout([xmin,xmax],[-1.6,1.6]),CONFIG);
   katexSafe("S_N(x)=\\sum_{k=1}^{N}\\frac{4}{\\pi(2k-1)}\\sin\\big((2k-1)x\\big)", document.getElementById('four-out'));
@@ -572,14 +629,14 @@ function renderSurface(){
     for(let i=0;i<nn;i++){ const xi=-r+i*step; xv.push(+xi.toFixed(3)); const row=[];
       for(let j=0;j<nn;j++){ const yj=-r+j*step; if(i===0) yv.push(+yj.toFixed(3)); let zij=NaN; try{zij=fn(xi,yj);}catch(e){} row.push(zij); }
       z.push(row); }
-    const trace={type:'surface',x:xv,y:yv,z:z,colorscale:'Viridis',showscale:true,
+    const trace={type:'surface',x:xv,y:yv,z:z,colorscale:'YlGnBu_r',showscale:true,
       contours:{z:{show:true,usecolormap:true,highlightcolor:'#fff',project:{z:true}}},
       hovertemplate:'x=%{x:.2f}<br>y=%{y:.2f}<br>z=%{z:.2f}<extra></extra>'};
     Plotly.react('plot-surface',[trace],{
       paper_bgcolor:"rgba(255,255,255,0)",margin:{t:10,r:10,b:10,l:10},
-      scene:{xaxis:{title:'x',color:'#1a1a2e',gridcolor:'rgba(120,110,180,.1)',backgroundcolor:'rgba(255,255,255,0)'},
-             yaxis:{title:'y',color:'#1a1a2e',gridcolor:'rgba(120,110,180,.1)',backgroundcolor:'rgba(255,255,255,0)'},
-             zaxis:{title:'z',color:'#1a1a2e',gridcolor:'rgba(120,110,180,.1)',backgroundcolor:'rgba(255,255,255,0)'}}
+      scene:{xaxis:{title:'x',color:'#787672',gridcolor:'#F0EDE6',backgroundcolor:'rgba(255,255,255,0)',tickfont:{size:10}},
+             yaxis:{title:'y',color:'#787672',gridcolor:'#F0EDE6',backgroundcolor:'rgba(255,255,255,0)',tickfont:{size:10}},
+             zaxis:{title:'z',color:'#787672',gridcolor:'#F0EDE6',backgroundcolor:'rgba(255,255,255,0)',tickfont:{size:10}}}
     },{responsive:true,displaylogo:false});
   }catch(err){ errEl.textContent=err.message; }
 }
