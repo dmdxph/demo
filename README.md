@@ -1,18 +1,15 @@
-# 高数可视化 · Calculus Viz
+# Frontend Style Skills
 
-一个零构建的单文件交互式高等数学可视化工具（纯前端 + CDN）。
+一个可直接部署的前端风格对照展厅。页面使用同一套数学可视化内容展示 20 种视觉语言，点击顶部按钮即可切换整套主题。
 
-## 功能模块
-- **函数作图**：输入 f(x)，实时绘制 2D 曲线，支持缩放/平移、多函数叠加
-- **导数 / 切线**：拖动 x₀，切线跟随移动，实时显示斜率（导数值）
-- **积分 / 黎曼和**：调节分割数 n，看矩形如何逼近曲线下面积
-- **极限动画**：x 趋近某值时函数值的变化
-- **傅里叶级数**：用少量正弦波逼近方波
-- **3D 曲面**：z = f(x,y) 的立体表面
+## 风格
+
+Academic Editorial、Swiss International、Neo Brutalism、Bauhaus、Bento Grid、Linear SaaS、Glassmorphism、Soft UI、Dark Scientific、Retro Terminal、Cyberpunk HUD、Japanese Minimal、Wabi-sabi、Luxury Editorial、Museum Archive、Notebook Paper、Claymorphism、Y2K Retro Web、Organic Gradient、Material 3。
+
+每个按钮都标注了可复用的 `frontend-style/<slug>` Skill 名称。
 
 ## 部署
-纯静态站点，无需构建：
-- Vercel：导入本仓库即可（Framework 选 Other / 静态）
-- 或直接把本目录拖到 Vercel 部署
 
-技术：Plotly.js（绘图）、KaTeX（公式），均通过 CDN 加载。
+这是纯静态站点，无需构建命令。Vercel 导入仓库时选择 `Other`，输出目录保持仓库根目录即可。
+
+原高数可视化首页保存在 `archive/calculus-viz-before-style-gallery.html`。
